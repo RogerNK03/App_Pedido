@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seu Aplicativo Flet</title>
+</head>
+<body>
+    <script src="https://flet.dev/release/latest/flet.js"></script>
+    <script>
+        flet.app(async (page) => {
+            import flet as ft
+		from Pedidos import Pedidos
+		from Historico import Historico
+		from models import Base
+		from sqlalchemy import create_engine
+		from sqlalchemy.orm import sessionmaker
+
+		# Configuração do banco de dados
+		CONN = "sqlite:///projeto2.db"
+		engine = create_engine(CONN, echo=True)
+		Base.metadata.create_all(engine)
+		Session = sessionmaker(bind=engine)
+		session = Session()
+
+		def main(page: ft.Page):
+    
+    			page.title = "Meu Aplicativo"
+    			page.theme = ft.Theme(color_scheme_seed="blue")
+
+    			def navigate_to(view):
+       				print("Função navigate_to chamada!")
+        			page.views.append(view)
+        			page.update()
+
+    			btn_pedido = ft.ElevatedButton('Pedidos', on_click=lambda e: navigate_to(Pedidos(page, session)))
+    			btn_historico = ft.ElevatedButton('Historico', on_click=lambda e: navigate_to(Historico(page, session))) # Passe a sessão
+
+    			page.add(
+        			ft.Column(
+            				[
+                				ft.Text("Bem-vindo!", style=ft.TextThemeStyle.HEADLINE_MEDIUM),
+                				ft.ResponsiveRow(
+                    					[
+                        					ft.Container(content=btn_pedido, col={"xs": 12, "sm": 6}),
+                        					ft.Container(content=btn_historico, col={"xs": 12, "sm": 6}),
+                    					]
+                				),
+            				],
+            				horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        			)
+    			)
+		print(type(session))  # Imprima o tipo de session
+		ft.app(target=main)
+        });
+    </script>
+</body>
+</html>
